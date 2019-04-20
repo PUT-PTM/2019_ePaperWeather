@@ -174,6 +174,7 @@ int main(void) {
 	Paint_Init(&paint, frame_buffer, epd.width, epd.height);
 	Paint_Clear(&paint, UNCOLORED);
 
+	//expandable code begin
 	/* For simplicity, the arguments are explicit numerical coordinates */
 	/* Write strings to the buffer */
 	Paint_DrawFilledRectangle(&paint, 0, 6, 200, 26, COLORED);
@@ -187,6 +188,7 @@ int main(void) {
 	Paint_DrawCircle(&paint, 120, 80, 30, COLORED);
 	Paint_DrawFilledRectangle(&paint, 10, 130, 50, 180, COLORED);
 	Paint_DrawFilledCircle(&paint, 120, 150, 30, COLORED);
+	//expandable code end
 
 	/* Display the frame_buffer */
 	EPD_SetFrameMemory(&epd, frame_buffer, 0, 0, Paint_GetWidth(&paint),
@@ -235,17 +237,31 @@ int main(void) {
 		 }*/
 
 		Paint_SetWidth(&paint, 200);
-		Paint_SetHeight(&paint, 100);
+		Paint_SetHeight(&paint, 200);
 		Paint_SetRotate(&paint, ROTATE_180);
 
 		Paint_Clear(&paint, UNCOLORED);
 		//Temperature
-		Paint_DrawStringAt(&paint, 4, 4, "Temp: 32°C", &Font16, COLORED);
+		Paint_DrawFilledCircle(&paint, 39, 39, 34, COLORED);
+		Paint_DrawStringAt(&paint, 15, 23, "Temp:", &Font16, UNCOLORED);
+		Paint_DrawStringAt(&paint, 27, 43, "32", &Font16, UNCOLORED);
 		//Cisnienie
-		Paint_DrawStringAt(&paint, 4, 24, "Pres: 1013hPa", &Font16, COLORED);
+		Paint_DrawFilledCircle(&paint, 84, 100, 34, COLORED);
+		Paint_DrawStringAt(&paint, 60, 83, "Pres:", &Font16, UNCOLORED);
+		Paint_DrawStringAt(&paint, 62, 103, "1013", &Font16, UNCOLORED);
 		//Wilgotnosc
-		Paint_DrawStringAt(&paint, 4, 44, "Damp: 500g/m³", &Font16, COLORED);
-		EPD_SetFrameMemory(&epd, frame_buffer, 0, 100, Paint_GetWidth(&paint),
+		Paint_DrawFilledCircle(&paint, 39, 161, 34, COLORED);
+		Paint_DrawStringAt(&paint, 15, 145, "Damp:", &Font16, UNCOLORED);
+		Paint_DrawStringAt(&paint, 23, 165, "500", &Font16, UNCOLORED);
+		//GUI
+		Paint_DrawLine(&paint, 1, 100, 200, 1, COLORED);
+		Paint_DrawLine(&paint, 1, 101, 200, 2, COLORED);
+		Paint_DrawLine(&paint, 1, 100, 200, 200, COLORED);
+		Paint_DrawLine(&paint, 1, 99, 200, 199, COLORED);
+		Paint_DrawRectangle(&paint, 1, 1, 199, 199, COLORED);
+		Paint_DrawRectangle(&paint, 2, 2, 198, 198, COLORED);
+
+		EPD_SetFrameMemory(&epd, frame_buffer, 0, 0, Paint_GetWidth(&paint),
 				Paint_GetHeight(&paint));
 		EPD_DisplayFrame(&epd);
 
