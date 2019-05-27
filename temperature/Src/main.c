@@ -46,9 +46,13 @@
 #include "epdpaint.h"
 #include "imagedata.h"
 #include <stdlib.h>
+#include <string.h>
+#include "bmp280.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c2;
+
 SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart2;
@@ -64,6 +68,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -75,9 +80,12 @@ static void MX_USART2_UART_Init(void);
 uint8_t Rh_byte1, Rh_byte2, Temp_byte1, Temp_byte2;
 uint16_t sum, RH, TEMP, TEMP1;
 uint8_t check = 0;
-
+int a, b, c;
 GPIO_InitTypeDef GPIO_InitStruct;
-
+float pressure, temperature, humidity;
+uint16_t size;
+uint8_t Data[256];
+BMP280_HandleTypedef bmp280;
 void set_gpio_output(void) {
 	/*Configure GPIO pin output: PA1 */
 	GPIO_InitStruct.Pin = GPIO_PIN_1;
@@ -138,9 +146,7 @@ int main(void) {
 	/* USER CODE BEGIN 1 */
 	unsigned char* frame_buffer = (unsigned char*) malloc(
 	EPD_WIDTH * EPD_HEIGHT / 8);
-	char time_string[] = { '0', '0', ':', '0', '0', '\0' };
-	unsigned long time_start_ms;
-	unsigned long time_now_s;
+	char str[10];
 	/* USER CODE END 1 */
 
 	/* MCU Configuration----------------------------------------------------------*/
@@ -163,7 +169,11 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_SPI1_Init();
 	MX_USART2_UART_Init();
+	MX_I2C2_Init();
 	/* USER CODE BEGIN 2 */
+	bmp280_init_default_params(&bmp280.params);
+	bmp280.addr = BMP280_I2C_ADDRESS_0;
+	bmp280.i2c = &hi2c2;
 	EPD epd;
 	if (EPD_Init(&epd, lut_full_update) != 0) {
 		printf("e-Paper init failed\n");
@@ -200,6 +210,12 @@ int main(void) {
 		printf("e-Paper init failed\n");
 		return -1;
 	}
+
+	while (!bmp280_init(&bmp280, &bmp280.params)) {
+		size = sprintf((char *) Data, "BMP280 initialization failed\n");
+		HAL_UART_Transmit(&huart2, Data, size, 1000);
+		HAL_Delay(2000);
+	}
 	/**
 	 *  there are 2 memory areas embedded in the e-paper display
 	 *  and once the display is refreshed, the memory area will be auto-toggled,
@@ -223,19 +239,18 @@ int main(void) {
 
 		/* USER CODE BEGIN 3 */
 		DHT11_start();
-		/*check_response();
-		 Rh_byte1 = read_data();
-		 Rh_byte2 = read_data();
-		 Temp_byte1 = read_data();
-		 Temp_byte2 = read_data();
-		 sum = read_data();
-		 if (sum == (Rh_byte1 + Rh_byte2 + Temp_byte1 + Temp_byte2)) // if the data is correct
-		 {
-		 TEMP = Temp_byte1;	// Temperatura
-		 RH = Rh_byte1;	// Wilgotnosc
-		 HAL_Delay(1000);
-		 }*/
-
+		check_response();
+		Rh_byte1 = read_data();
+		Rh_byte2 = read_data();
+		Temp_byte1 = read_data();
+		Temp_byte2 = read_data();
+		sum = read_data();
+		if (sum == (Rh_byte1 + Rh_byte2 + Temp_byte1 + Temp_byte2)) // if the data is correct
+				{
+			TEMP = Temp_byte1;	// Temperatura
+			RH = Rh_byte1;	// Wilgotnosc
+			HAL_Delay(1000);
+		}
 		Paint_SetWidth(&paint, 200);
 		Paint_SetHeight(&paint, 200);
 		Paint_SetRotate(&paint, ROTATE_180);
@@ -244,15 +259,21 @@ int main(void) {
 		//Temperature
 		Paint_DrawFilledCircle(&paint, 39, 39, 34, COLORED);
 		Paint_DrawStringAt(&paint, 15, 23, "Temp:", &Font16, UNCOLORED);
-		Paint_DrawStringAt(&paint, 27, 43, "32", &Font16, UNCOLORED);
+		a = TEMP;
+		//itoa(a, snum, 10);
+		Paint_DrawStringAt(&paint, 27, 43, itoa(a, str, 10), &Font16,
+				UNCOLORED);
 		//Cisnienie
 		Paint_DrawFilledCircle(&paint, 84, 100, 34, COLORED);
 		Paint_DrawStringAt(&paint, 60, 83, "Pres:", &Font16, UNCOLORED);
-		Paint_DrawStringAt(&paint, 62, 103, "1013", &Font16, UNCOLORED);
+		b=pressure;
+		Paint_DrawStringAt(&paint, 62, 103, itoa(b, str, 10), &Font16, UNCOLORED);
 		//Wilgotnosc
 		Paint_DrawFilledCircle(&paint, 39, 161, 34, COLORED);
-		Paint_DrawStringAt(&paint, 15, 145, "Damp:", &Font16, UNCOLORED);
-		Paint_DrawStringAt(&paint, 23, 165, "500", &Font16, UNCOLORED);
+		Paint_DrawStringAt(&paint, 15, 145, "Mois:", &Font16, UNCOLORED);
+		c = RH;
+		Paint_DrawStringAt(&paint, 23, 165, itoa(c, str, 10), &Font16,
+				UNCOLORED);
 		//GUI
 		Paint_DrawLine(&paint, 1, 100, 200, 1, COLORED);
 		Paint_DrawLine(&paint, 1, 101, 200, 2, COLORED);
@@ -266,6 +287,17 @@ int main(void) {
 		EPD_DisplayFrame(&epd);
 
 		EPD_DelayMs(&epd, 10);
+
+		HAL_Delay(100);
+		while (!bmp280_read_float(&bmp280, &temperature, &pressure, &humidity)) {
+			size = sprintf((char *) Data,
+					"Temperature/pressure reading failed\n");
+			HAL_UART_Transmit(&huart2, Data, size, 1000);
+			HAL_Delay(2000);
+		}
+
+		//HAL_Delay(2000);
+
 	}
 	/* USER CODE END 3 */
 
@@ -326,6 +358,24 @@ void SystemClock_Config(void) {
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+/* I2C2 init function */
+static void MX_I2C2_Init(void) {
+
+	hi2c2.Instance = I2C2;
+	hi2c2.Init.ClockSpeed = 100000;
+	hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+	hi2c2.Init.OwnAddress1 = 0;
+	hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+	hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+	hi2c2.Init.OwnAddress2 = 0;
+	hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+	hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+	if (HAL_I2C_Init(&hi2c2) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+}
+
 /* SPI1 init function */
 static void MX_SPI1_Init(void) {
 
@@ -381,9 +431,9 @@ static void MX_GPIO_Init(void) {
 	;
 	__HAL_RCC_GPIOA_CLK_ENABLE()
 	;
-	__HAL_RCC_GPIOC_CLK_ENABLE()
-	;
 	__HAL_RCC_GPIOB_CLK_ENABLE()
+	;
+	__HAL_RCC_GPIOC_CLK_ENABLE()
 	;
 
 	/*Configure GPIO pin Output Level */
