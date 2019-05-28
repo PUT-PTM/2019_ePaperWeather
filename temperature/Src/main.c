@@ -251,6 +251,7 @@ int main(void) {
 			RH = Rh_byte1;	// Wilgotnosc
 			HAL_Delay(1000);
 		}
+
 		//GUI
 		Paint_SetWidth(&paint, 200);
 		Paint_SetHeight(&paint, 200);
@@ -258,87 +259,43 @@ int main(void) {
 		Paint_Clear(&paint, UNCOLORED);
 		Paint_DrawRectangle(&paint, 1, 1, 199, 199, COLORED);
 		Paint_DrawRectangle(&paint, 2, 2, 198, 198, COLORED);
+
 		//Temperature
 		Paint_DrawStringAt(&paint, 5, 5, "Temperatura", &Font24, COLORED);
 		a = TEMP;
 		Paint_DrawStringAt(&paint, 8, 30, itoa(a, str, 10), &Font24,
 		COLORED);
+		Paint_DrawStringAt(&paint, 40, 30, "C", &Font24,
+		COLORED);
 		Paint_DrawRectangle(&paint, 5, 55, 195, 65, COLORED);
-		if (a >= -20 && a < -30) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 23, 65, COLORED);
-		} else if (a >= -30 && a < -20) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 42, 65, COLORED);
-		} else if (a >= -20 && a < -10) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 61, 65, COLORED);
-		} else if (a >= -10 && a < 0) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 80, 65, COLORED);
-		} else if (a >= 0 && a < 10) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 99, 65, COLORED);
-		} else if (a >= 10 && a < 20) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 118, 65, COLORED);
-		} else if (a >= 20 && a < 30) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 137, 65, COLORED);
-		} else if (a >= 30 && a < 40) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 156, 65, COLORED);
-		} else if (a >= 40 && a < 50) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 175, 65, COLORED);
-		} else if (a >= 50) {
-			Paint_DrawFilledRectangle(&paint, 5, 55, 195, 65, COLORED);
-		}
+		Paint_DrawFilledRectangle(&paint, 5, 55, ((a + 20) / 0.36), 65,
+		COLORED);
+
 		//Cisnienie
 		Paint_DrawStringAt(&paint, 5, 70, "Cisnienie", &Font24, COLORED);
 		b = pressure;
 		Paint_DrawStringAt(&paint, 8, 95, itoa(b, str, 10), &Font24,
 		COLORED);
-		Paint_DrawRectangle(&paint, 5, 120, 195, 130, COLORED);
-		if (b >= 970 && b < 975) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 23, 130, COLORED);
-		} else if (b >= 975 && b < 980) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 42, 130, COLORED);
-		} else if (b >= 980 && b < 985) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 61, 130, COLORED);
-		} else if (b >= 985 && b < 990) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 80, 130, COLORED);
-		} else if (b >= 990 && b < 995) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 99, 130, COLORED);
-		} else if (b >= 995 && b < 1000) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 118, 130, COLORED);
-		} else if (b >= 1000 && b < 1005) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 137, 130, COLORED);
-		} else if (b >= 1005 && b < 1010) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 156, 130, COLORED);
-		} else if (b >= 1010 && b < 1015) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 175, 130, COLORED);
-		} else if (b >= 1015) {
-			Paint_DrawFilledRectangle(&paint, 5, 120, 195, 130, COLORED);
+		if (b < 1000) {
+			Paint_DrawStringAt(&paint, 60, 95, "hPa", &Font24,
+			COLORED);
+		} else {
+			Paint_DrawStringAt(&paint, 80, 95, "hPa", &Font24,
+			COLORED);
 		}
+		Paint_DrawRectangle(&paint, 5, 120, 195, 130, COLORED);
+		Paint_DrawFilledRectangle(&paint, 5, 120, ((b - 970) / 0.25), 130,
+		COLORED);
+
 		//Wilgotnosc
 		Paint_DrawStringAt(&paint, 5, 135, "Wilgotnosc", &Font24, COLORED);
 		c = RH;
 		Paint_DrawStringAt(&paint, 8, 160, itoa(c, str, 10), &Font24,
 		COLORED);
+		Paint_DrawStringAt(&paint, 40, 160, "%RH", &Font24,
+		COLORED);
 		Paint_DrawRectangle(&paint, 5, 185, 195, 195, COLORED);
-		if (c >= 0 && c < 10) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 42, 195, COLORED);
-		} else if (c >= 10 && c < 20) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 42, 195, COLORED);
-		} else if (c >= 20 && c < 30) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 61, 195, COLORED);
-		} else if (c >= 30 && c < 40) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 80, 195, COLORED);
-		} else if (c >= 40 && c < 50) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 99, 195, COLORED);
-		} else if (c >= 50 && c < 60) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 118, 195, COLORED);
-		} else if (c >= 60 && c < 70) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 137, 195, COLORED);
-		} else if (c >= 70 && c < 80) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 156, 195, COLORED);
-		} else if (c >= 80 && c < 90) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 175, 195, COLORED);
-		} else if (c >= 90) {
-			Paint_DrawFilledRectangle(&paint, 5, 185, 195, 195, COLORED);
-		}
+		Paint_DrawFilledRectangle(&paint, 5, 185, (c / 0.46), 195, COLORED);
 
 		EPD_SetFrameMemory(&epd, frame_buffer, 0, 0, Paint_GetWidth(&paint),
 				Paint_GetHeight(&paint));
