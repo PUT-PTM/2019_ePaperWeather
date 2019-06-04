@@ -265,14 +265,17 @@ int main(void) {
 		a = TEMP;
 		Paint_DrawStringAt(&paint, 8, 30, itoa(a, str, 10), &Font24,
 		COLORED);
-		Paint_DrawStringAt(&paint, 40, 30, "C", &Font24,
+		Paint_DrawStringAt(&paint, 40, 30, "&", &Font24,
+		COLORED);
+		Paint_DrawStringAt(&paint, 53, 30, "C", &Font24,
 		COLORED);
 		Paint_DrawRectangle(&paint, 5, 55, 195, 65, COLORED);
-		Paint_DrawFilledRectangle(&paint, 5, 55, ((a + 20) / 0.36), 65,
+		Paint_DrawFilledRectangle(&paint, 5, 55, (((a + 20) / 0.37) + 5), 65,
 		COLORED);
 
 		//Cisnienie
-		Paint_DrawStringAt(&paint, 5, 70, "Cisnienie", &Font24, COLORED);
+		Paint_DrawStringAt(&paint, 5, 70, "Cibnienie", &Font24,
+		COLORED);
 		b = pressure;
 		Paint_DrawStringAt(&paint, 8, 95, itoa(b, str, 10), &Font24,
 		COLORED);
@@ -284,18 +287,20 @@ int main(void) {
 			COLORED);
 		}
 		Paint_DrawRectangle(&paint, 5, 120, 195, 130, COLORED);
-		Paint_DrawFilledRectangle(&paint, 5, 120, ((b - 970) / 0.25), 130,
+		Paint_DrawFilledRectangle(&paint, 5, 120, (((b - 975) / 0.26) + 5), 130,
 		COLORED);
 
 		//Wilgotnosc
-		Paint_DrawStringAt(&paint, 5, 135, "Wilgotnosc", &Font24, COLORED);
+		Paint_DrawStringAt(&paint, 5, 135, "Wilgotnobd", &Font24,
+		COLORED);
 		c = RH;
 		Paint_DrawStringAt(&paint, 8, 160, itoa(c, str, 10), &Font24,
 		COLORED);
 		Paint_DrawStringAt(&paint, 40, 160, "%RH", &Font24,
 		COLORED);
 		Paint_DrawRectangle(&paint, 5, 185, 195, 195, COLORED);
-		Paint_DrawFilledRectangle(&paint, 5, 185, (c / 0.46), 195, COLORED);
+		Paint_DrawFilledRectangle(&paint, 5, 185, ((c / 0.5) + 5), 195,
+		COLORED);
 
 		EPD_SetFrameMemory(&epd, frame_buffer, 0, 0, Paint_GetWidth(&paint),
 				Paint_GetHeight(&paint));
@@ -426,7 +431,7 @@ static void MX_USART2_UART_Init(void) {
 
 }
 
-/** Configure pins as 
+/** Configure pins as
  * Analog
  * Input
  * Output
