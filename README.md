@@ -39,6 +39,7 @@ STM32. Biblioteka ta zawiera funkcje przeznaczone do odczytu danych z czujnika o
 Obie są zawarte w pliku main.c.
 
 License:
+  MIT.
 
 Credits:
   Authors: Adrian Lorenc, Tomasz Musiałek
